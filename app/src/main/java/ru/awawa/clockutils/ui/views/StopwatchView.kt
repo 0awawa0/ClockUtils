@@ -1,10 +1,19 @@
 package ru.awawa.clockutils.ui.views
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Button
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -43,16 +52,17 @@ fun StopwatchView(
         )
 
         Button(
-            onClick = {
-                if (isRunning) onPauseStopwatch() else onStartStopwatch()
-            },
+            onClick = { if (isRunning) onPauseStopwatch() else onStartStopwatch() },
             modifier = Modifier.constrainAs(btnStart) {
                 start.linkTo(parent.start, margin = 8.dp)
                 end.linkTo(btnStop.start, margin = 8.dp)
                 bottom.linkTo(parent.bottom, margin = 32.dp)
-            }
+            }.size(50.dp).clip(CircleShape)
         ) {
-            Text(text = if (isRunning) "Pause" else "Start")
+            Icon(
+                imageVector = if (isRunning) Icons.Default.Pause else Icons.Default.PlayArrow,
+                contentDescription = null
+            )
         }
 
         Button(
@@ -61,9 +71,9 @@ fun StopwatchView(
                 start.linkTo(btnStart.end, margin = 8.dp)
                 end.linkTo(parent.end, margin = 8.dp)
                 bottom.linkTo(parent.bottom, margin = 32.dp)
-            }
+            }.size(50.dp).clip(CircleShape)
         ) {
-            Text(text = "Stop")
+            Icon(imageVector = Icons.Default.Stop, contentDescription = null)
         }
     }
 }
