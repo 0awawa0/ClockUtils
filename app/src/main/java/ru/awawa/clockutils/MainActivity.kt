@@ -3,11 +3,15 @@ package ru.awawa.clockutils
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AvTimer
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigate
@@ -17,9 +21,11 @@ import ru.awawa.clockutils.ui.theme.ClockUtilsTheme
 import ru.awawa.clockutils.ui.theme.Grey500
 import ru.awawa.clockutils.ui.views.BottomBar
 import ru.awawa.clockutils.ui.views.NavigationItem
+import ru.awawa.clockutils.ui.views.StopwatchView
 
 class MainActivity : ComponentActivity() {
 
+    private val viewModel by viewModels<MainViewModel>()
     private var selectedItem by mutableStateOf(0)
     private val navigationItems = listOf(
         NavigationItem("stopwatch", Icons.Default.Timer),
@@ -42,7 +48,6 @@ class MainActivity : ComponentActivity() {
                     color = Grey500,
                     darkIcons = false
                 )
-                // A surface container using the 'background' color from the theme
                 Scaffold(
                     bottomBar = { BottomBar(
                         items = navigationItems,
@@ -51,25 +56,31 @@ class MainActivity : ComponentActivity() {
                             selectedItem = it
                             navController.navigate(currentNavItem.route)
                         }
-                    ) }
-                ) {
-                    NavHost(
-                        navController = navController,
-                        startDestination = navigationItems[0].route
-                    ) {
-                        for (item in navigationItems) {
-                            composable(item.route) {
-                                Content(item.route)
+                    ) },
+                    content = { paddings ->
+                        NavHost(
+                            navController = navController,
+                            startDestination = navigationItems[0].route,
+                            modifier = Modifier.padding(paddings).fillMaxSize()
+                        ) {
+                            for (item in navigationItems) {
+                                composable(item.route) {
+                                    when (item.route) {
+                                        "stopwatch" -> StopwatchView(
+                                            currentTime = viewModel.currentTime,
+                                            isRunning = viewModel.isRunning,
+                                            onStartStopwatch = viewModel::onStartStopwatch,
+                                            onPauseStopwatch = viewModel::onPauseStopwatch,
+                                            onStopStopwatch = viewModel::onStopStopwatch
+                                        )
+                                        else -> Text(item.route)
+                                    }
+                                }
                             }
                         }
-                    }
-                }
+                    },
+                )
             }
         }
     }
-}
-
-@Composable
-fun Content(text: String) {
-    Text(text = text)
 }
