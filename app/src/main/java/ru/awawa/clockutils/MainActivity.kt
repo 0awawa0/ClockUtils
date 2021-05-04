@@ -1,5 +1,6 @@
 package ru.awawa.clockutils
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,12 +12,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AvTimer
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.core.content.ContextCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigate
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import ru.awawa.clockutils.helper.ForegroundService
 import ru.awawa.clockutils.ui.theme.ClockUtilsTheme
 import ru.awawa.clockutils.ui.theme.Grey500
 import ru.awawa.clockutils.ui.views.BottomBar
@@ -58,17 +62,21 @@ class MainActivity : ComponentActivity() {
                         }
                     ) },
                     content = { paddings ->
+                        val currentTime: Long by viewModel.currentTime.observeAsState(initial = 0L)
+                        val isRunning: Boolean by viewModel.isRunning.observeAsState(false)
                         NavHost(
                             navController = navController,
                             startDestination = navigationItems[0].route,
-                            modifier = Modifier.padding(paddings).fillMaxSize()
+                            modifier = Modifier
+                                .padding(paddings)
+                                .fillMaxSize()
                         ) {
                             for (item in navigationItems) {
                                 composable(item.route) {
                                     when (item.route) {
                                         "stopwatch" -> StopwatchView(
-                                            currentTime = viewModel.currentTime,
-                                            isRunning = viewModel.isRunning,
+                                            currentTime = currentTime,
+                                            isRunning = isRunning,
                                             onStartStopwatch = viewModel::onStartStopwatch,
                                             onPauseStopwatch = viewModel::onPauseStopwatch,
                                             onStopStopwatch = viewModel::onStopStopwatch
@@ -82,5 +90,22 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        if (viewModel.isRunning.value == true) {
+            ContextCompat.startForegroundService(
+                this,
+                Intent(this, ForegroundService::class.java)
+            )
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        stopService(Intent(this, ForegroundService::class.java))
     }
 }
