@@ -20,12 +20,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigate
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import ru.awawa.clockutils.helper.ForegroundService
+import ru.awawa.clockutils.helper.StopwatchSerivce
 import ru.awawa.clockutils.ui.theme.ClockUtilsTheme
 import ru.awawa.clockutils.ui.theme.Grey500
 import ru.awawa.clockutils.ui.views.BottomBar
 import ru.awawa.clockutils.ui.views.NavigationItem
 import ru.awawa.clockutils.ui.views.StopwatchView
+import ru.awawa.clockutils.ui.views.TimerView
 
 class MainActivity : ComponentActivity() {
 
@@ -81,6 +82,13 @@ class MainActivity : ComponentActivity() {
                                             onPauseStopwatch = viewModel::onPauseStopwatch,
                                             onStopStopwatch = viewModel::onStopStopwatch
                                         )
+                                        "timer" -> TimerView(
+                                            currentTime = 0L,
+                                            isRunning = false,
+                                            onStartTimer = { /*TODO*/ },
+                                            onPauseTimer = { /*TODO*/ }) {
+
+                                        }
                                         else -> Text(item.route)
                                     }
                                 }
@@ -98,7 +106,7 @@ class MainActivity : ComponentActivity() {
         if (viewModel.isRunning.value == true) {
             ContextCompat.startForegroundService(
                 this,
-                Intent(this, ForegroundService::class.java)
+                Intent(this, StopwatchSerivce::class.java)
             )
         }
     }
@@ -106,6 +114,6 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
 
-        stopService(Intent(this, ForegroundService::class.java))
+        stopService(Intent(this, StopwatchSerivce::class.java))
     }
 }

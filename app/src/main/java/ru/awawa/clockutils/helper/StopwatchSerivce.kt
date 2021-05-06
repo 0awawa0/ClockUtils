@@ -6,26 +6,22 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
-import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.Observer
 import ru.awawa.clockutils.MainActivity
 import ru.awawa.clockutils.R
 import java.util.*
-import kotlin.random.Random
 import kotlin.random.Random.Default.nextInt
 
-class ForegroundService: LifecycleService() {
+class StopwatchSerivce: LifecycleService() {
 
     companion object {
-        const val ACTION_START = "ru.awawa.clockutils.ACTION_START"
-        const val ACTION_PAUSE = "ru.awawa.clockutils.ACTION_PAUSE"
-        const val ACTION_STOP = "ru.awawa.clockutils.ACTION_STOP"
-        const val CHANNEL_ID = "ru.awawa.clockutils.foregroundservice"
+        const val ACTION_START = "ru.awawa.clockutils.stopwatch.ACTION_START"
+        const val ACTION_PAUSE = "ru.awawa.clockutils.stopwatch.ACTION_PAUSE"
+        const val ACTION_STOP = "ru.awawa.clockutils.stopwatch.ACTION_STOP"
+        const val CHANNEL_ID = "ru.awawa.clockutils.stopwatch_service"
         const val CHANNEL_NAME = "Stopwatch/timer notification"
         const val SERVICE_ID = 101
     }
@@ -62,8 +58,8 @@ class ForegroundService: LifecycleService() {
                     Stopwatch.time.removeObserver(observer)
                     Stopwatch.stop()
                     stopService(Intent(
-                        this@ForegroundService,
-                        ForegroundService::class.java
+                        this@StopwatchSerivce,
+                        StopwatchSerivce::class.java
                     ))
                 }
                 else -> return

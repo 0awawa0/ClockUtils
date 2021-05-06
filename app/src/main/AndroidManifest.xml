@@ -22,7 +22,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".helper.ForegroundService"
+        <service android:name=".helper.StopwatchSerivce"
             android:enabled="true"
             android:exported="false"/>
     </application>
