@@ -10,6 +10,8 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.flow.collect
 import ru.awawa.clockutils.MainActivity
 import ru.awawa.clockutils.R
 import java.util.*
@@ -55,12 +57,8 @@ class StopwatchSerivce: LifecycleService() {
                     )
                 }
                 ACTION_STOP -> {
-                    Stopwatch.time.removeObserver(observer)
+                    stopSelf()
                     Stopwatch.stop()
-                    stopService(Intent(
-                        this@StopwatchSerivce,
-                        StopwatchSerivce::class.java
-                    ))
                 }
                 else -> return
             }
@@ -86,14 +84,23 @@ class StopwatchSerivce: LifecycleService() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Stopwatch.time.observe(this, observer)
+        lifecycleScope.launchWhenStarted {
+            Stopwatch.time.collect {
+                val seconds = "%02d".format(it / 1000 % 60)
+                val minutes = "%02d".format(it / 1000 / 60 % 60)
+                val hours = "%02d".format(it / 1000 / 60 / 60)
+                updateNotification(
+                    "$hours:$minutes:$seconds",
+                    Stopwatch.isRunning.value ?: false
+                )
+            }
+        }
         startForeground(SERVICE_ID, buildNotification("00:00:00", true))
         registerReceiver(broadcastReceiver, intentFilter)
         return super.onStartCommand(intent, flags, startId)
     }
 
     override fun onDestroy() {
-        Stopwatch.time.removeObserver(observer)
         unregisterReceiver(broadcastReceiver)
         stopForeground(true)
         super.onDestroy()

@@ -63,8 +63,9 @@ class MainActivity : ComponentActivity() {
                         }
                     ) },
                     content = { paddings ->
-                        val currentTime: Long by viewModel.currentTime.observeAsState(initial = 0L)
-                        val isRunning: Boolean by viewModel.isRunning.observeAsState(false)
+                        val currentTime: Long by viewModel.currentTime.collectAsState()
+                        val isRunning: Boolean by viewModel.isRunning.collectAsState()
+
                         NavHost(
                             navController = navController,
                             startDestination = navigationItems[0].route,
@@ -103,7 +104,7 @@ class MainActivity : ComponentActivity() {
     override fun onPause() {
         super.onPause()
 
-        if (viewModel.isRunning.value == true) {
+        if (viewModel.isRunning.value) {
             ContextCompat.startForegroundService(
                 this,
                 Intent(this, StopwatchSerivce::class.java)
