@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="timer">Таймер</string>
+    <string name="stopwatch">Секундомер</string>
+
+    <string name="start">Старт</string>
+    <string name="pause">Пауза</string>
+    <string name="stop">Стоп</string>
+
+    <string name="timer_notification_channel_name">Уведомление таймера</string>
+    <string name="stopwatch_notification_channel_name">Уведомление секундомера</string>
+</resources>

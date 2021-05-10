@@ -24,6 +24,7 @@ import ru.awawa.clockutils.ui.theme.ClockUtilsTheme
 @Composable
 fun StopwatchView(
     modifier: Modifier = Modifier,
+    label: String,
     currentTime: Long,
     isRunning: Boolean,
     onStartStopwatch: () -> Unit,
@@ -36,14 +37,24 @@ fun StopwatchView(
     val hours = "%02d".format(currentTime / 1000 / 60 / 60)
 
     ConstraintLayout(modifier = modifier) {
-        val (btnStart, btnStop, text) = createRefs()
+        val (btnStart, btnStop, text, header) = createRefs()
+
+        Text(
+            modifier = Modifier.constrainAs(header) {
+                start.linkTo(parent.start, margin = 8.dp)
+                end.linkTo(parent.end, margin = 8.dp)
+                top.linkTo(parent.top, margin = 8.dp)
+            },
+            fontSize = 32.sp,
+            text = label
+        )
 
         Text(
             text = "$hours:$minutes:$seconds:$milliseconds",
             modifier = Modifier.constrainAs(text) {
                 start.linkTo(parent.start, margin = 8.dp)
                 end.linkTo(parent.end, margin = 8.dp)
-                top.linkTo(parent.top, margin = 8.dp)
+                top.linkTo(header.bottom, margin = 8.dp)
                 bottom.linkTo(btnStart.top, margin = 8.dp)
             },
             fontSize = 32.sp,
@@ -83,6 +94,7 @@ fun PreviewStopwatchView() {
     ClockUtilsTheme {
         StopwatchView(
             modifier = Modifier.fillMaxSize(),
+            label = "Stopwatch",
             currentTime = 0L,
             isRunning = false,
             onStartStopwatch = { },

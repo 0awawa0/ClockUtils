@@ -7,6 +7,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
@@ -30,6 +31,7 @@ import ru.awawa.clockutils.ui.theme.ClockUtilsTheme
 @Composable
 fun TimerView(
     modifier: Modifier = Modifier,
+    label: String,
     currentTime: Long,
     isRunning: Boolean,
     onSetTime: (Long) -> Unit,
@@ -40,13 +42,23 @@ fun TimerView(
 
     ConstraintLayout(modifier = modifier) {
 
-        val (btnStart, btnStop, text) = createRefs()
+        val (btnStart, btnStop, text, header) = createRefs()
+
+        Text(
+            modifier = Modifier.constrainAs(header) {
+                start.linkTo(parent.start, margin = 8.dp)
+                end.linkTo(parent.end, margin = 8.dp)
+                top.linkTo(parent.top, margin = 8.dp)
+            },
+            fontSize = 32.sp,
+            text = label
+        )
 
         TimeInputView(
             modifier = Modifier.constrainAs(text) {
                 start.linkTo(parent.start, margin = 8.dp)
                 end.linkTo(parent.end, margin = 8.dp)
-                top.linkTo(parent.top, margin = 8.dp)
+                top.linkTo(header.bottom, margin = 8.dp)
                 bottom.linkTo(btnStart.top, margin = 8.dp)
             },
             currentTime = currentTime,
@@ -145,6 +157,7 @@ fun TimeInputView(
 fun PreviewTimerView() {
     ClockUtilsTheme {
         TimerView(
+            label = "Timer",
             currentTime = 0L,
             isRunning = false,
             onSetTime = {},

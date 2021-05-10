@@ -2,6 +2,7 @@ package ru.awawa.clockutils.ui.views
 
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AvTimer
 import androidx.compose.material.icons.filled.Timelapse
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.runtime.Composable
@@ -13,7 +14,10 @@ import ru.awawa.clockutils.ui.theme.ClockUtilsTheme
 import ru.awawa.clockutils.ui.theme.Teal200
 
 
-data class NavigationItem(val route: String, val icon: ImageVector)
+enum class NavigationItem(val route: String, val icon: ImageVector) {
+    Stopwatch("stopwatch", Icons.Default.Timer),
+    Timer("timer", Icons.Default.AvTimer)
+}
 
 @Composable
 fun BottomBar(
@@ -39,8 +43,8 @@ fun BottomBar(
 @Composable
 fun PreviewBottomBar() {
     val items = listOf(
-        NavigationItem("stopwatch", Icons.Default.Timer),
-        NavigationItem("timer", Icons.Default.Timelapse)
+        NavigationItem.Stopwatch,
+        NavigationItem.Timer
     )
     ClockUtilsTheme {
         BottomBar(

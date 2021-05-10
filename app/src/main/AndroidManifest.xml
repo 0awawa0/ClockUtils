@@ -22,7 +22,11 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".helper.StopwatchService"
+        <service android:name=".service.StopwatchService"
+            android:enabled="true"
+            android:exported="false"/>
+
+        <service android:name=".service.TimerService"
             android:enabled="true"
             android:exported="false"/>
     </application>

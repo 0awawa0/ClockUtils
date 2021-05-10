@@ -7,7 +7,7 @@ import kotlin.concurrent.timer
 
 object TimerObj {
 
-    private const val updateInterval = 23L
+    private const val updateInterval = 150L
 
     private var timer: Timer? = null
 
@@ -20,6 +20,8 @@ object TimerObj {
     fun setTime(time: Long) { mTime.value = time }
 
     fun start() {
+        if (mTime.value == 0L) return
+
         timer = timer(initialDelay = updateInterval, period = updateInterval) {
             val newVal = mTime.value - updateInterval
             mTime.value = if (newVal > 0) newVal else 0
