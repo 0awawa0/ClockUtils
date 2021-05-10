@@ -12,7 +12,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AvTimer
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.NavHost
@@ -20,7 +19,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigate
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import ru.awawa.clockutils.helper.StopwatchSerivce
+import ru.awawa.clockutils.helper.StopwatchService
 import ru.awawa.clockutils.ui.theme.ClockUtilsTheme
 import ru.awawa.clockutils.ui.theme.Grey500
 import ru.awawa.clockutils.ui.views.BottomBar
@@ -63,8 +62,10 @@ class MainActivity : ComponentActivity() {
                         }
                     ) },
                     content = { paddings ->
-                        val currentTime: Long by viewModel.currentTime.collectAsState()
-                        val isRunning: Boolean by viewModel.isRunning.collectAsState()
+                        val currentStopwatchTime: Long by viewModel.currentStopwatchTime.collectAsState()
+                        val isStopwatchRunning: Boolean by viewModel.isStopwatchRunning.collectAsState()
+                        val currentTimerTime: Long by viewModel.currentTimerTime.collectAsState()
+                        val isTimerRunning: Boolean by viewModel.isTimerRunning.collectAsState()
 
                         NavHost(
                             navController = navController,
@@ -77,19 +78,20 @@ class MainActivity : ComponentActivity() {
                                 composable(item.route) {
                                     when (item.route) {
                                         "stopwatch" -> StopwatchView(
-                                            currentTime = currentTime,
-                                            isRunning = isRunning,
+                                            currentTime = currentStopwatchTime,
+                                            isRunning = isStopwatchRunning,
                                             onStartStopwatch = viewModel::onStartStopwatch,
                                             onPauseStopwatch = viewModel::onPauseStopwatch,
                                             onStopStopwatch = viewModel::onStopStopwatch
                                         )
                                         "timer" -> TimerView(
-                                            currentTime = 0L,
-                                            isRunning = false,
-                                            onStartTimer = { /*TODO*/ },
-                                            onPauseTimer = { /*TODO*/ }) {
-
-                                        }
+                                            currentTime = currentTimerTime,
+                                            isRunning = isTimerRunning,
+                                            onSetTime = viewModel::onSetTimerTime,
+                                            onStartTimer = viewModel::onStartTimer,
+                                            onPauseTimer = viewModel::onPauseTimer,
+                                            onStopTimer = viewModel::onStopTimer
+                                        )
                                         else -> Text(item.route)
                                     }
                                 }
@@ -104,10 +106,10 @@ class MainActivity : ComponentActivity() {
     override fun onPause() {
         super.onPause()
 
-        if (viewModel.isRunning.value) {
+        if (viewModel.isStopwatchRunning.value) {
             ContextCompat.startForegroundService(
                 this,
-                Intent(this, StopwatchSerivce::class.java)
+                Intent(this, StopwatchService::class.java)
             )
         }
     }
@@ -115,6 +117,6 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
 
-        stopService(Intent(this, StopwatchSerivce::class.java))
+        stopService(Intent(this, StopwatchService::class.java))
     }
 }

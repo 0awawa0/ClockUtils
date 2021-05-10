@@ -9,7 +9,6 @@ import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.collect
 import ru.awawa.clockutils.MainActivity
@@ -17,7 +16,7 @@ import ru.awawa.clockutils.R
 import java.util.*
 import kotlin.random.Random.Default.nextInt
 
-class StopwatchSerivce: LifecycleService() {
+class StopwatchService: LifecycleService() {
 
     companion object {
         const val ACTION_START = "ru.awawa.clockutils.stopwatch.ACTION_START"
@@ -34,14 +33,14 @@ class StopwatchSerivce: LifecycleService() {
             intent ?: return
             val action = intent.action ?: return
 
-            val time = Stopwatch.time.value ?: 0L
+            val time = StopwatchObj.time.value
             val seconds = "%02d".format(time / 1000 % 60)
             val minutes = "%02d".format(time / 1000 / 60 % 60)
             val hours = "%02d".format(time / 1000 / 60 / 60)
 
             when (action) {
                 ACTION_START -> {
-                    Stopwatch.start()
+                    StopwatchObj.start()
                     updateNotification(
                         "$hours:$minutes:$seconds",
                         isRunning = true,
@@ -49,7 +48,7 @@ class StopwatchSerivce: LifecycleService() {
                     )
                 }
                 ACTION_PAUSE -> {
-                    Stopwatch.pause()
+                    StopwatchObj.pause()
                     updateNotification(
                         "$hours:$minutes:$seconds",
                         isRunning = false,
@@ -58,21 +57,11 @@ class StopwatchSerivce: LifecycleService() {
                 }
                 ACTION_STOP -> {
                     stopSelf()
-                    Stopwatch.stop()
+                    StopwatchObj.stop()
                 }
                 else -> return
             }
         }
-    }
-
-    private val observer = Observer<Long> {
-        val seconds = "%02d".format(it / 1000 % 60)
-        val minutes = "%02d".format(it / 1000 / 60 % 60)
-        val hours = "%02d".format(it / 1000 / 60 / 60)
-        updateNotification(
-            "$hours:$minutes:$seconds",
-            Stopwatch.isRunning.value ?: false
-        )
     }
 
     private var lastUpdate = 0L
@@ -85,13 +74,13 @@ class StopwatchSerivce: LifecycleService() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         lifecycleScope.launchWhenStarted {
-            Stopwatch.time.collect {
+            StopwatchObj.time.collect {
                 val seconds = "%02d".format(it / 1000 % 60)
                 val minutes = "%02d".format(it / 1000 / 60 % 60)
                 val hours = "%02d".format(it / 1000 / 60 / 60)
                 updateNotification(
                     "$hours:$minutes:$seconds",
-                    Stopwatch.isRunning.value ?: false
+                    StopwatchObj.isRunning.value
                 )
             }
         }

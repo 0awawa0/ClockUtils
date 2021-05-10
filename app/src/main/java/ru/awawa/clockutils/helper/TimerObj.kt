@@ -1,29 +1,29 @@
 package ru.awawa.clockutils.helper
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.util.*
 import kotlin.concurrent.timer
 
-object Stopwatch {
+object TimerObj {
 
     private const val updateInterval = 23L
+
+    private var timer: Timer? = null
 
     private val mTime = MutableStateFlow(0L)
     val time: StateFlow<Long> = mTime
 
-    private var timer: Timer? = null
     private var mIsRunning = MutableStateFlow(false)
     val isRunning: StateFlow<Boolean> = mIsRunning
 
+    fun setTime(time: Long) { mTime.value = time }
+
     fun start() {
-        timer = timer(initialDelay = 0L, period = updateInterval) {
-            mTime.value = mTime.value + updateInterval
+        timer = timer(initialDelay = updateInterval, period = updateInterval) {
+            val newVal = mTime.value - updateInterval
+            mTime.value = if (newVal > 0) newVal else 0
         }
-        mIsRunning.value = true
     }
 
     fun pause() {

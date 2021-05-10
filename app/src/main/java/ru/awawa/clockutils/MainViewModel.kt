@@ -1,27 +1,23 @@
 package ru.awawa.clockutils
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import ru.awawa.clockutils.helper.Stopwatch
-import java.util.*
-import kotlin.concurrent.timer
+import ru.awawa.clockutils.helper.StopwatchObj
+import ru.awawa.clockutils.helper.TimerObj
 
 class MainViewModel: ViewModel() {
 
-    val currentTime = Stopwatch.time
-    val isRunning = Stopwatch.isRunning
+    val currentStopwatchTime = StopwatchObj.time
+    val isStopwatchRunning = StopwatchObj.isRunning
 
-    fun onStartStopwatch() {
-        Stopwatch.start()
-    }
+    val currentTimerTime = TimerObj.time
+    val isTimerRunning = TimerObj.isRunning
 
-    fun onPauseStopwatch() {
-        Stopwatch.pause()
-    }
+    fun onStartStopwatch() { StopwatchObj.start() }
+    fun onPauseStopwatch() { StopwatchObj.pause() }
+    fun onStopStopwatch() { StopwatchObj.stop() }
 
-    fun onStopStopwatch() {
-        Stopwatch.stop()
-    }
+    fun onSetTimerTime(time: Long) { TimerObj.setTime(time) }
+    fun onStartTimer() { TimerObj.start() }
+    fun onPauseTimer() { TimerObj.pause() }
+    fun onStopTimer() { TimerObj.stop() }
 }
