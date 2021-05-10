@@ -24,6 +24,7 @@ object TimerObj {
             val newVal = mTime.value - updateInterval
             mTime.value = if (newVal > 0) newVal else 0
         }
+        mIsRunning.value = true
     }
 
     fun pause() {
