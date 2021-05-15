@@ -96,7 +96,7 @@ class MainActivity : ComponentActivity() {
                                             currentTime = currentTimerTime,
                                             isRunning = isTimerRunning,
                                             onSetTime = viewModel::onSetTimerTime,
-                                            onStartTimer = viewModel::onStartTimer,
+                                            onStartTimer = { viewModel.onStartTimer(this@MainActivity) },
                                             onPauseTimer = viewModel::onPauseTimer,
                                             onStopTimer = viewModel::onStopTimer
                                         )

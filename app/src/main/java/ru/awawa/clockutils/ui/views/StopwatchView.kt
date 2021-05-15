@@ -1,6 +1,5 @@
 package ru.awawa.clockutils.ui.views
 
-import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape

@@ -59,7 +59,7 @@ fun TimerView(
                 start.linkTo(parent.start, margin = 8.dp)
                 end.linkTo(parent.end, margin = 8.dp)
                 top.linkTo(header.bottom, margin = 8.dp)
-                bottom.linkTo(btnStart.top, margin = 8.dp)
+                bottom.linkTo(btnStop.top, margin = 8.dp)
             },
             currentTime = currentTime,
             isEnabled = !isRunning,
@@ -71,28 +71,36 @@ fun TimerView(
             )
         )
 
-        Button(
-            onClick = { if (isRunning) onPauseTimer() else onStartTimer() },
-            modifier = Modifier
-                .constrainAs(btnStart) {
-                    start.linkTo(parent.start, margin = 8.dp)
-                    end.linkTo(btnStop.start, margin = 8.dp)
-                    bottom.linkTo(parent.bottom, margin = 32.dp)
-                }
-                .size(50.dp)
-                .clip(CircleShape)
-        ) {
-            Icon(
-                imageVector = if (isRunning) Icons.Default.Pause else Icons.Default.PlayArrow,
-                contentDescription = null
-            )
+        if (!isRunning || currentTime != 0L) {
+            Button(
+                onClick = { if (isRunning) onPauseTimer() else onStartTimer() },
+                modifier = Modifier
+                    .constrainAs(btnStart) {
+                        start.linkTo(parent.start, margin = 8.dp)
+                        end.linkTo(btnStop.start, margin = 8.dp)
+                        bottom.linkTo(parent.bottom, margin = 32.dp)
+                    }
+                    .size(50.dp)
+                    .clip(CircleShape)
+            ) {
+                Icon(
+                    imageVector = if (isRunning) Icons.Default.Pause else Icons.Default.PlayArrow,
+                    contentDescription = null
+                )
+            }
         }
 
         Button(
             onClick = onStopTimer,
             modifier = Modifier
                 .constrainAs(btnStop) {
-                    start.linkTo(btnStart.end, margin = 8.dp)
+                    start.linkTo(
+                        if (!isRunning || currentTime != 0L)
+                            btnStart.end
+                        else
+                            parent.start,
+                        margin = 8.dp
+                    )
                     end.linkTo(parent.end, margin = 8.dp)
                     bottom.linkTo(parent.bottom, margin = 32.dp)
                 }

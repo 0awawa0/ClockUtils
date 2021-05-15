@@ -29,7 +29,6 @@ class TimerService: LifecycleService() {
         private const val SERVICE_ID = 102
     }
 
-    private val channelName = getString(R.string.timer_notification_channel_name)
     private val intentFilter = IntentFilter()
     private val broadcastReceiver = object: BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -44,7 +43,7 @@ class TimerService: LifecycleService() {
 
             when (action) {
                 ACTION_START -> {
-                    TimerObj.start()
+                    TimerObj.start(this@TimerService)
                     updateNotification(
                         "$hours:$minutes:$seconds",
                         isRunning = true,
@@ -154,7 +153,9 @@ class TimerService: LifecycleService() {
                 )
             })
 
-        builder.addAction(if (isRunning) actionPause else actionStart)
+        if (time != "00:00:00") {
+            builder.addAction(if (isRunning) actionPause else actionStart)
+        }
         builder.addAction(actionStop)
 
         return builder.build()
@@ -167,7 +168,7 @@ class TimerService: LifecycleService() {
 
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                channelName,
+                getString(R.string.timer_notification_channel_name),
                 NotificationManager.IMPORTANCE_DEFAULT
             )
             channel.setSound(null, null)
