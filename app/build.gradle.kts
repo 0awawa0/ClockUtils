@@ -48,6 +48,11 @@ android {
 
 dependencies {
 
+    val roomVersion = "2.3.0"
+
+    implementation("androidx.room:room-runtime:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
+
     implementation("androidx.core:core-ktx:1.3.2")
     implementation("androidx.appcompat:appcompat:1.2.0")
 
