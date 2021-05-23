@@ -11,6 +11,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
+import androidx.navigation.Navigation
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigate
@@ -37,7 +38,8 @@ class MainActivity : ComponentActivity() {
     private var selectedItem by mutableStateOf(0)
     private val navigationItems = listOf(
         NavigationItem.Stopwatch,
-        NavigationItem.Timer
+        NavigationItem.Timer,
+        NavigationItem.Alarm
     )
     private val currentNavItem: NavigationItem
         get() = navigationItems[selectedItem]
