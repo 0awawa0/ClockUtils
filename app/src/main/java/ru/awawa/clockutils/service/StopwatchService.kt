@@ -10,6 +10,7 @@ import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.collect
+import ru.awawa.clockutils.BuildConfig
 import ru.awawa.clockutils.MainActivity
 import ru.awawa.clockutils.R
 import ru.awawa.clockutils.helper.StopwatchObj
@@ -19,14 +20,13 @@ import kotlin.random.Random.Default.nextInt
 class StopwatchService: LifecycleService() {
 
     companion object {
-        private const val ACTION_START = "ru.awawa.clockutils.stopwatch.ACTION_START"
-        private const val ACTION_PAUSE = "ru.awawa.clockutils.stopwatch.ACTION_PAUSE"
-        private const val ACTION_STOP = "ru.awawa.clockutils.stopwatch.ACTION_STOP"
-        private const val CHANNEL_ID = "ru.awawa.clockutils.stopwatch_service"
+        private const val ACTION_START = "${BuildConfig.APPLICATION_ID}.stopwatch.ACTION_START"
+        private const val ACTION_PAUSE = "${BuildConfig.APPLICATION_ID}.stopwatch.ACTION_PAUSE"
+        private const val ACTION_STOP = "${BuildConfig.APPLICATION_ID}.stopwatch.ACTION_STOP"
+        private const val CHANNEL_ID = "${BuildConfig.APPLICATION_ID}.stopwatch_service"
         private const val SERVICE_ID = 101
     }
 
-    private val channelName = getString(R.string.stopwatch_notification_channel_name)
     private val intentFilter = IntentFilter()
     private val broadcastReceiver = object: BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -161,6 +161,7 @@ class StopwatchService: LifecycleService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE)
                     as? NotificationManager? ?: return
+            val channelName = getString(R.string.stopwatch_notification_channel_name)
             val channel = NotificationChannel(
                 CHANNEL_ID,
                 channelName,

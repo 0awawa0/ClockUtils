@@ -11,10 +11,8 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
-import androidx.navigation.Navigation
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigate
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import ru.awawa.clockutils.service.StopwatchService
@@ -82,10 +80,12 @@ class MainActivity : ComponentActivity() {
                                 .padding(paddings)
                                 .fillMaxSize()
                         ) {
+                            val childModifier = Modifier.fillMaxSize()
                             for (item in navigationItems) {
                                 composable(item.route) {
                                     when (item.route) {
                                         NavigationItem.Stopwatch.route -> StopwatchView(
+                                            modifier = childModifier,
                                             label = getString(R.string.stopwatch),
                                             currentTime = currentStopwatchTime,
                                             isRunning = isStopwatchRunning,
@@ -94,6 +94,7 @@ class MainActivity : ComponentActivity() {
                                             onStopStopwatch = viewModel::onStopStopwatch
                                         )
                                         NavigationItem.Timer.route -> TimerView(
+                                            modifier = childModifier,
                                             label = getString(R.string.timer),
                                             currentTime = currentTimerTime,
                                             isRunning = isTimerRunning,
@@ -102,7 +103,10 @@ class MainActivity : ComponentActivity() {
                                             onPauseTimer = viewModel::onPauseTimer,
                                             onStopTimer = viewModel::onStopTimer
                                         )
-                                        else -> Text(item.route)
+                                        else -> Text(
+                                            item.route,
+                                            modifier = childModifier
+                                        )
                                     }
                                 }
                             }
