@@ -6,9 +6,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import ru.awawa.clockutils.BuildConfig
 import ru.awawa.clockutils.MainActivity
@@ -27,6 +29,8 @@ class StopwatchService: LifecycleService() {
         private const val SERVICE_ID = 101
     }
 
+    private val tag = "StopwatchService"
+
     private val intentFilter = IntentFilter()
     private val broadcastReceiver = object: BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -38,6 +42,7 @@ class StopwatchService: LifecycleService() {
             val minutes = "%02d".format(time / 1000 / 60 % 60)
             val hours = "%02d".format(time / 1000 / 60 / 60)
 
+            Log.w(tag, "Broadcast received: $action")
             when (action) {
                 ACTION_START -> {
                     StopwatchObj.start()
@@ -65,6 +70,7 @@ class StopwatchService: LifecycleService() {
     }
 
     private var lastUpdate = 0L
+    private var timeUpdaterJob: Job? = null
 
     init {
         intentFilter.addAction(ACTION_START)
@@ -73,16 +79,17 @@ class StopwatchService: LifecycleService() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        lifecycleScope.launchWhenStarted {
-            StopwatchObj.time.collect {
-                val seconds = "%02d".format(it / 1000 % 60)
-                val minutes = "%02d".format(it / 1000 / 60 % 60)
-                val hours = "%02d".format(it / 1000 / 60 / 60)
-                updateNotification(
-                    "$hours:$minutes:$seconds",
-                    StopwatchObj.isRunning.value
-                )
-            }
+        Log.w(tag, "Service started")
+        timeUpdaterJob = lifecycleScope.launchWhenStarted {
+                StopwatchObj.time.collect {
+                    val seconds = "%02d".format(it / 1000 % 60)
+                    val minutes = "%02d".format(it / 1000 / 60 % 60)
+                    val hours = "%02d".format(it / 1000 / 60 / 60)
+                    updateNotification(
+                        "$hours:$minutes:$seconds",
+                        StopwatchObj.isRunning.value
+                    )
+                }
         }
         startForeground(SERVICE_ID, buildNotification("00:00:00", true))
         registerReceiver(broadcastReceiver, intentFilter)
@@ -90,6 +97,7 @@ class StopwatchService: LifecycleService() {
     }
 
     override fun onDestroy() {
+        timeUpdaterJob?.cancel()
         unregisterReceiver(broadcastReceiver)
         stopForeground(true)
         super.onDestroy()
@@ -138,7 +146,7 @@ class StopwatchService: LifecycleService() {
             .setSmallIcon(R.drawable.ic_stopwatch)
             .setContentTitle(getString(R.string.stopwatch))
             .setContentText(time)
-            .setOngoing(true)
+            .setOngoing(isRunning)
             .setSound(null)
             .setContentIntent(Intent(this, MainActivity::class.java).let {
                 it.putExtra(MainActivity.EXTRA_TYPE, MainActivity.TYPE_STOPWATCH)

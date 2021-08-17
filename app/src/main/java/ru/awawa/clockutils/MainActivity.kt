@@ -2,6 +2,7 @@ package ru.awawa.clockutils
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -31,6 +32,8 @@ class MainActivity : ComponentActivity() {
         const val TYPE_STOPWATCH = "Stopwatch"
         const val TYPE_TIMER = "Timer"
     }
+
+    private val tag = "MainActivity"
 
     private val viewModel by viewModels<MainViewModel>()
     private var selectedItem by mutableStateOf(0)
@@ -133,6 +136,8 @@ class MainActivity : ComponentActivity() {
                 Intent(this, TimerService::class.java)
             )
         }
+
+        Log.w(tag, "onPause()")
     }
 
     override fun onResume() {
@@ -140,5 +145,6 @@ class MainActivity : ComponentActivity() {
 
         stopService(Intent(this, StopwatchService::class.java))
         stopService(Intent(this, TimerService::class.java))
+        Log.w(tag, "onResume()")
     }
 }
