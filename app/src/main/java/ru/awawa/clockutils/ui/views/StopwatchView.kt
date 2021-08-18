@@ -1,7 +1,6 @@
 package ru.awawa.clockutils.ui.views
 
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
+import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Button
@@ -12,12 +11,8 @@ import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -26,6 +21,8 @@ import ru.awawa.clockutils.ui.theme.ClockUtilsTheme
 import ru.awawa.clockutils.ui.theme.Teal200
 import ru.awawa.clockutils.ui.theme.Teal500
 
+
+@ExperimentalAnimationApi
 @Composable
 fun StopwatchView(
     modifier: Modifier = Modifier,
@@ -37,7 +34,7 @@ fun StopwatchView(
     onStopStopwatch: () -> Unit
 ) {
     ConstraintLayout(modifier = modifier) {
-        val (btnStart, btnStop, text, header, circle) = createRefs()
+        val (btnsBox, text, header, circle) = createRefs()
 
         Text(
             modifier = Modifier.constrainAs(header) {
@@ -51,7 +48,7 @@ fun StopwatchView(
 
         Box(modifier = Modifier.constrainAs(circle) {
             top.linkTo(header.bottom)
-            bottom.linkTo(btnStart.top)
+            bottom.linkTo(btnsBox.top)
             start.linkTo(text.start)
             end.linkTo(text.end)
         }) {
@@ -66,39 +63,65 @@ fun StopwatchView(
             )
         }
 
+        StopwatchButtons(
+            Modifier
+                .fillMaxWidth()
+                .constrainAs(btnsBox) {
+                    bottom.linkTo(parent.bottom, margin = 32.dp)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                },
+            isRunning,
+            onStartStopwatch = onStartStopwatch,
+            onPauseStopwatch = onPauseStopwatch,
+            onStopStopwatch = onStopStopwatch
+        )
+    }
+}
+
+@ExperimentalAnimationApi
+@Composable
+fun StopwatchButtons(
+    modifier: Modifier = Modifier,
+    isRunning: Boolean = false,
+    onStartStopwatch: () -> Unit,
+    onPauseStopwatch: () -> Unit,
+    onStopStopwatch: () -> Unit
+) {
+
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
         Button(
             onClick = { if (isRunning) onPauseStopwatch() else onStartStopwatch() },
             modifier = Modifier
-                .constrainAs(btnStart) {
-                    start.linkTo(parent.start, margin = 8.dp)
-                    end.linkTo(btnStop.start, margin = 8.dp)
-                    bottom.linkTo(parent.bottom, margin = 32.dp)
-                }
-                .size(50.dp)
+                .size(75.dp)
                 .clip(CircleShape)
         ) {
             Icon(
                 imageVector = if (isRunning) Icons.Default.Pause else Icons.Default.PlayArrow,
-                contentDescription = null
+                contentDescription = null,
+                tint = Teal200
             )
         }
 
         Button(
             onClick = onStopStopwatch,
             modifier = Modifier
-                .constrainAs(btnStop) {
-                    start.linkTo(btnStart.end, margin = 8.dp)
-                    end.linkTo(parent.end, margin = 8.dp)
-                    bottom.linkTo(parent.bottom, margin = 32.dp)
-                }
-                .size(50.dp)
+                .size(75.dp)
                 .clip(CircleShape)
         ) {
-            Icon(imageVector = Icons.Default.Stop, contentDescription = null)
+            Icon(
+                imageVector = Icons.Default.Stop,
+                contentDescription = null,
+                tint = Teal200
+            )
         }
     }
 }
 
+@ExperimentalAnimationApi
 @Preview
 @Composable
 fun PreviewStopwatchView() {
@@ -107,7 +130,7 @@ fun PreviewStopwatchView() {
             modifier = Modifier.fillMaxSize(),
             label = "Stopwatch",
             currentTime = 30L * 1000,
-            isRunning = false,
+            isRunning = true,
             onStartStopwatch = { },
             onPauseStopwatch = { },
             onStopStopwatch = { }

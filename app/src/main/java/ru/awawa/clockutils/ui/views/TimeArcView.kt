@@ -22,8 +22,9 @@ import ru.awawa.clockutils.ui.theme.ClockUtilsTheme
 fun TimeArcView(
     modifier: Modifier = Modifier,
     currentTime: Long,
-    primaryColor: Color = Color.Blue,
-    secondaryColor: Color = Color.Red,
+    primaryColor: Color = Color.White,
+    secondaryColor: Color = Color.Black,
+    pointerColor: Color = Color.Red,
     primaryStrokeWidth: Float = 5f,
     secondaryStrokeWidth: Float = 3f,
     fontSize: TextUnit = 32.sp,
@@ -38,7 +39,7 @@ fun TimeArcView(
     Box(modifier = modifier) {
         Canvas(
             modifier = Modifier.width(fontSize.value.dp * 8)
-                .fillMaxSize()
+                .height(fontSize.value.dp * 8)
                 .align(Alignment.Center)
         ) {
             val switchedColors = (currentTime / 1000 / 60) % 2 == 1L
@@ -49,17 +50,26 @@ fun TimeArcView(
                 halfSize.height - innerRadius
             )
             val size = Size(innerRadius * 2, innerRadius * 2)
-            val delta = if (currentTime == 0L) 0f else 1f
+            val pointerWidth = 1f
             val primaryStartAngle = -90f
             val primarySweepAngle = 360f * ((currentTime % 60000) / 60000f)
-            val secondaryStartAngle = primaryStartAngle + primarySweepAngle + delta
-            val secondarySweepAngle = 360f - primarySweepAngle - delta
+            val secondaryStartAngle = primaryStartAngle + primarySweepAngle + pointerWidth
+            val secondarySweepAngle = 360f - primarySweepAngle - pointerWidth
             drawArc(
                 color = if (switchedColors) secondaryColor else primaryColor,
                 startAngle = primaryStartAngle,
                 sweepAngle = primarySweepAngle,
                 useCenter = false,
                 style = Stroke(width = if (switchedColors) primaryStrokeWidth else secondaryStrokeWidth),
+                size = size,
+                topLeft = topLeft
+            )
+            drawArc(
+                color = pointerColor,
+                startAngle = secondaryStartAngle - pointerWidth,
+                sweepAngle = pointerWidth,
+                useCenter = false,
+                style = Stroke(width = primaryStrokeWidth),
                 size = size,
                 topLeft = topLeft
             )
