@@ -88,9 +88,13 @@ class MainActivity : ComponentActivity() {
                                             label = getString(R.string.stopwatch),
                                             currentTime = currentStopwatchTime,
                                             isRunning = isStopwatchRunning,
+                                            viewModel.checkPoints,
                                             onStartStopwatch = viewModel::onStartStopwatch,
                                             onPauseStopwatch = viewModel::onPauseStopwatch,
-                                            onStopStopwatch = viewModel::onStopStopwatch
+                                            onStopStopwatch = viewModel::onStopStopwatch,
+                                            onAddCheckPoint = viewModel::onAddCheckPoint,
+                                            onSaveCheckPoint = {},
+                                            onRemoveCheckPoint = viewModel::onRemoveCheckPoint
                                         )
                                     }
                                 }

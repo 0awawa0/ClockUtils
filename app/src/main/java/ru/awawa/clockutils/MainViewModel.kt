@@ -10,10 +10,18 @@ class MainViewModel: ViewModel() {
     val currentStopwatchTime = StopwatchObj.time
     val isStopwatchRunning = StopwatchObj.isRunning
 
+    val checkPoints = LinkedHashSet<Long>()
+
     val currentTimerTime = TimerObj.time
     val isTimerRunning = TimerObj.isRunning
 
-    fun onStartStopwatch() { StopwatchObj.start() }
+    fun onStartStopwatch() {
+        if (currentStopwatchTime.value == 0L) {
+            checkPoints.clear()
+        }
+
+        StopwatchObj.start()
+    }
     fun onPauseStopwatch() { StopwatchObj.pause() }
     fun onStopStopwatch() { StopwatchObj.stop() }
 
@@ -21,4 +29,7 @@ class MainViewModel: ViewModel() {
     fun onStartTimer(context: Context) { TimerObj.start(context) }
     fun onPauseTimer() { TimerObj.pause() }
     fun onStopTimer() { TimerObj.stop() }
+
+    fun onAddCheckPoint() { checkPoints.add(currentStopwatchTime.value) }
+    fun onRemoveCheckPoint(value: Long) { checkPoints.remove(value) }
 }
