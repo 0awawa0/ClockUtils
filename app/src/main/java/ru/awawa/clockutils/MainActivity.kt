@@ -7,6 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
@@ -42,6 +43,7 @@ class MainActivity : ComponentActivity() {
     private val currentNavItem: NavigationItem
         get() = navigationItems[selectedItem]
 
+    @ExperimentalFoundationApi
     @ExperimentalAnimationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -88,7 +90,7 @@ class MainActivity : ComponentActivity() {
                                             label = getString(R.string.stopwatch),
                                             currentTime = currentStopwatchTime,
                                             isRunning = isStopwatchRunning,
-                                            viewModel.checkPoints,
+                                            viewModel.checkPoints.value,
                                             onStartStopwatch = viewModel::onStartStopwatch,
                                             onPauseStopwatch = viewModel::onPauseStopwatch,
                                             onStopStopwatch = viewModel::onStopStopwatch,

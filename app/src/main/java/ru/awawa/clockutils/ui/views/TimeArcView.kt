@@ -31,7 +31,6 @@ fun TimeArcView(
     pointerColor: Color = Color.Red,
     primaryStrokeWidth: Float = 5f,
     secondaryStrokeWidth: Float = 3f,
-    fontSize: TextUnit = 32.sp,
     textColor: Color = Color.White
 ) {
 
@@ -40,10 +39,11 @@ fun TimeArcView(
     val minutes = "%02d".format(currentTime / 1000 / 60 % 60)
     val hours = "%02d".format(currentTime / 1000 / 60 / 60)
 
-    Box(modifier = modifier) {
+    BoxWithConstraints(modifier = modifier) {
+        val radius = minOf(maxHeight, maxWidth)
         Canvas(
-            modifier = Modifier.width(fontSize.value.dp * 8)
-                .height(fontSize.value.dp * 8)
+            modifier = Modifier.width(radius)
+                .height(radius)
                 .align(Alignment.Center)
         ) {
             val switchedColors = (currentTime / 1000 / 60) % 2 == 1L
@@ -90,7 +90,7 @@ fun TimeArcView(
         Text(
             text = "$hours:$minutes:$seconds:$milliseconds",
             modifier = Modifier.align(Alignment.Center),
-            fontSize = fontSize,
+            fontSize = ((radius - 10.dp) / 8).value.sp,
             fontFamily = FontFamily.Monospace,
             color = textColor
         )
