@@ -7,7 +7,7 @@ import kotlin.concurrent.timer
 
 object StopwatchObj {
 
-    private const val updateInterval = 31L
+    private const val updateInterval = 51L
 
     private val mTime = MutableStateFlow(0L)
     val time: StateFlow<Long> = mTime

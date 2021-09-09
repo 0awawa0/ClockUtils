@@ -21,7 +21,7 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import ru.awawa.clockutils.service.StopwatchService
 import ru.awawa.clockutils.service.TimerService
 import ru.awawa.clockutils.ui.theme.ClockUtilsTheme
-import ru.awawa.clockutils.ui.theme.Grey500
+import ru.awawa.clockutils.ui.theme.Grey700
 import ru.awawa.clockutils.ui.views.BottomBar
 import ru.awawa.clockutils.ui.views.NavigationItem
 import ru.awawa.clockutils.ui.views.StopwatchView
@@ -58,7 +58,7 @@ class MainActivity : ComponentActivity() {
             val systemUiController = rememberSystemUiController()
             ClockUtilsTheme {
                 systemUiController.setSystemBarsColor(
-                    color = Grey500,
+                    color = Grey700,
                     darkIcons = false
                 )
                 Scaffold(
@@ -87,7 +87,6 @@ class MainActivity : ComponentActivity() {
                                     when (item.route) {
                                         NavigationItem.Stopwatch.route -> StopwatchView(
                                             modifier = childModifier,
-                                            label = getString(R.string.stopwatch),
                                             currentTime = currentStopwatchTime,
                                             isRunning = isStopwatchRunning,
                                             viewModel.checkPoints.value,
@@ -95,8 +94,7 @@ class MainActivity : ComponentActivity() {
                                             onPauseStopwatch = viewModel::onPauseStopwatch,
                                             onStopStopwatch = viewModel::onStopStopwatch,
                                             onAddCheckPoint = viewModel::onAddCheckPoint,
-                                            onSaveCheckPoint = {},
-                                            onRemoveCheckPoint = viewModel::onRemoveCheckPoint
+                                            onSaveCheckPoint = {}
                                         )
                                     }
                                 }

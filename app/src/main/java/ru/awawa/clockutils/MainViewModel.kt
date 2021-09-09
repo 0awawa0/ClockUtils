@@ -11,10 +11,7 @@ class MainViewModel: ViewModel() {
     val currentStopwatchTime = StopwatchObj.time
     val isStopwatchRunning = StopwatchObj.isRunning
 
-    data class CheckPoint(
-        val timestamp: Long,
-        var isVisible: Boolean = true
-    )
+    data class CheckPoint(val timestamp: Long, val difference: Long)
 
     private val _checkPoints = LinkedHashSet<CheckPoint>()
     val checkPoints = mutableStateOf(_checkPoints)
@@ -29,15 +26,19 @@ class MainViewModel: ViewModel() {
         StopwatchObj.start()
     }
     fun onPauseStopwatch() { StopwatchObj.pause() }
-    fun onStopStopwatch() { StopwatchObj.stop() }
+    fun onStopStopwatch() {
+        _checkPoints.clear()
+        StopwatchObj.stop()
+    }
 
     fun onSetTimerTime(time: Long) { TimerObj.setTime(time) }
     fun onStartTimer(context: Context) { TimerObj.start(context) }
     fun onPauseTimer() { TimerObj.pause() }
     fun onStopTimer() { TimerObj.stop() }
 
-    fun onAddCheckPoint() { _checkPoints.add(CheckPoint(currentStopwatchTime.value, true)) }
-    fun onRemoveCheckPoint(point: CheckPoint) {
-        point.isVisible = false
+    fun onAddCheckPoint() {
+        val time = currentStopwatchTime.value
+        val last = if (_checkPoints.isNotEmpty()) _checkPoints.last().timestamp else -1L
+        _checkPoints.add(CheckPoint(time, if (last == -1L) -1L else time - last))
     }
 }

@@ -2,6 +2,7 @@
 <resources>
     <string name="timer">Таймер</string>
     <string name="stopwatch">Секундомер</string>
+    <string name = "alarm">Будильник</string>
 
     <string name="start">Старт</string>
     <string name="pause">Пауза</string>
