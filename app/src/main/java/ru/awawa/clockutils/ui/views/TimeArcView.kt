@@ -1,12 +1,15 @@
 package ru.awawa.clockutils.ui.views
 
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -42,7 +45,8 @@ fun TimeArcView(
     BoxWithConstraints(modifier = modifier) {
         val radius = minOf(maxHeight, maxWidth)
         Canvas(
-            modifier = Modifier.width(radius)
+            modifier = Modifier
+                .width(radius)
                 .height(radius)
                 .align(Alignment.Center)
         ) {

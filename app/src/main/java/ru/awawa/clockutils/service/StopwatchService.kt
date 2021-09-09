@@ -44,25 +44,25 @@ class StopwatchService: LifecycleService() {
 
             Log.w(tag, "Broadcast received: $action")
             when (action) {
-                ACTION_START -> {
-                    StopwatchObj.start()
+                ACTION_START, ACTION_PAUSE -> {
+                    StopwatchObj.switch()
                     updateNotification(
                         "$hours:$minutes:$seconds",
-                        isRunning = true,
+                        isRunning = StopwatchObj.isRunning.value,
                         force = true
                     )
                 }
-                ACTION_PAUSE -> {
-                    StopwatchObj.pause()
-                    updateNotification(
-                        "$hours:$minutes:$seconds",
-                        isRunning = false,
-                        force = true
-                    )
-                }
+//                ACTION_PAUSE -> {
+//                    StopwatchObj.switch()
+//                    updateNotification(
+//                        "$hours:$minutes:$seconds",
+//                        isRunning = false,
+//                        force = true
+//                    )
+//                }
                 ACTION_STOP -> {
                     stopSelf()
-                    StopwatchObj.stop()
+                    StopwatchObj.reset()
                 }
                 else -> return
             }

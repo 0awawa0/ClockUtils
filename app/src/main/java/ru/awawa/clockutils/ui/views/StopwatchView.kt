@@ -3,6 +3,8 @@ package ru.awawa.clockutils.ui.views
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -12,8 +14,10 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomCenter
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.TopCenter
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,12 +35,19 @@ fun StopwatchView(
     currentTime: Long,
     isRunning: Boolean,
     checkPoints: HashSet<MainViewModel.CheckPoint>,
-    onStartStopwatch: () -> Unit,
-    onPauseStopwatch: () -> Unit,
-    onStopStopwatch: () -> Unit,
-    onAddCheckPoint: () -> Unit,
-    onSaveCheckPoint: (MainViewModel.CheckPoint) -> Unit
+    onSwitchStopwatch: () -> Unit,
+    onResetStopwatch: () -> Unit,
+    onAddCheckPoint: () -> Unit
 ) {
+    val infiniteTransition = rememberInfiniteTransition()
+    val blink by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 0f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(500, delayMillis = 2000),
+            RepeatMode.Reverse
+        )
+    )
     Column(modifier = modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
         val spacerWeight = 2f
         val buttonsWeight = 8f
@@ -61,7 +72,13 @@ fun StopwatchView(
             TimeArcView(
                 modifier = Modifier
                     .align(TopCenter)
-                    .height(archSize),
+                    .height(archSize)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = onSwitchStopwatch
+                    )
+                    .alpha(if (isRunning) 1f else blink),
                 currentTime = currentTime,
                 primaryColor = Teal300,
                 secondaryColor = Grey700,
@@ -80,24 +97,43 @@ fun StopwatchView(
                     item {
                         CheckPointView(
                             modifier = Modifier.fillMaxWidth(),
-                            checkPoint = it,
-                            onSaveCheckPoint = onSaveCheckPoint
+                            checkPoint = it
                         )
                     }
                 }
             }
         }
         Spacer(modifier = Modifier.weight(spacerWeight))
-        StopwatchButtons(
-            modifier = Modifier
-                .weight(buttonsWeight)
-                .fillMaxWidth(),
-            isRunning = isRunning,
-            onStartStopwatch = onStartStopwatch,
-            onPauseStopwatch = onPauseStopwatch,
-            onStopStopwatch = onStopStopwatch,
-            onAddCheckPoint = onAddCheckPoint
-        )
+        AnimatedVisibility(modifier = Modifier
+            .weight(buttonsWeight)
+            .fillMaxWidth()
+            .align(CenterHorizontally),
+            visible = currentTime != 0L,
+            enter = slideInHorizontally(animationSpec = tween(250)) + fadeIn(),
+            exit = slideOutHorizontally({ it + it / 2}, animationSpec = tween(250)) + fadeOut()
+        ) {
+            BoxWithConstraints {
+                Row(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Button(
+                        onClick = if (isRunning) onAddCheckPoint else onResetStopwatch,
+                        modifier = Modifier
+                            .size(this@BoxWithConstraints.maxHeight)
+                            .clip(CircleShape)
+                    ) {
+                        Icon(
+                            imageVector = if (isRunning) Icons.Default.Flag else Icons.Default.Refresh,
+                            contentDescription = null,
+                            tint = Teal300
+                        )
+                    }
+                }
+            }
+        }
+
         Spacer(modifier = Modifier.weight(spacerWeight))
     }
 }
@@ -107,51 +143,17 @@ fun StopwatchView(
 fun StopwatchButtons(
     modifier: Modifier = Modifier,
     isRunning: Boolean = false,
-    onStartStopwatch: () -> Unit,
-    onPauseStopwatch: () -> Unit,
-    onStopStopwatch: () -> Unit,
+    onResetStopwatch: () -> Unit,
     onAddCheckPoint: () -> Unit
 ) {
 
-    BoxWithConstraints(modifier = modifier) {
-        Row(
-            modifier = modifier,
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            Button(
-                onClick = { if (isRunning) onPauseStopwatch() else onStartStopwatch() },
-                modifier = Modifier
-                    .size(this@BoxWithConstraints.maxHeight)
-                    .clip(CircleShape)
-            ) {
-                Icon(
-                    imageVector = if (isRunning) Icons.Default.Pause else Icons.Default.PlayArrow,
-                    contentDescription = null,
-                    tint = Teal300
-                )
-            }
 
-            Button(
-                onClick = if (isRunning) onAddCheckPoint else onStopStopwatch,
-                modifier = Modifier
-                    .size(this@BoxWithConstraints.maxHeight)
-                    .clip(CircleShape)
-            ) {
-                Icon(
-                    imageVector = if (isRunning) Icons.Default.Flag else Icons.Default.Stop,
-                    contentDescription = null,
-                    tint = Teal300
-                )
-            }
-        }
-    }
 }
 
 @Composable
 fun CheckPointView(
     modifier: Modifier = Modifier,
-    checkPoint: MainViewModel.CheckPoint,
-    onSaveCheckPoint: (MainViewModel.CheckPoint) -> Unit
+    checkPoint: MainViewModel.CheckPoint
 ) {
     val milliseconds = "%03d".format(checkPoint.timestamp % 1000)
     val seconds = "%02d".format(checkPoint.timestamp / 1000 % 60)
@@ -194,7 +196,7 @@ fun CheckPointView(
 @Preview
 @Composable
 fun PreviewCheckPointView() {
-    CheckPointView(checkPoint = MainViewModel.CheckPoint(1000, 0), onSaveCheckPoint = {})
+    CheckPointView(checkPoint = MainViewModel.CheckPoint(1000, 500))
 }
 
 @ExperimentalFoundationApi
@@ -212,11 +214,9 @@ fun PreviewStopwatchView() {
                 MainViewModel.CheckPoint(2000, 1000),
                 MainViewModel.CheckPoint(40000, 40000)
             ),
-            onStartStopwatch = { },
-            onPauseStopwatch = { },
-            onStopStopwatch = { },
-            onAddCheckPoint = { },
-            onSaveCheckPoint = { }
+            onSwitchStopwatch = { },
+            onResetStopwatch = { },
+            onAddCheckPoint = { }
         )
     }
 }

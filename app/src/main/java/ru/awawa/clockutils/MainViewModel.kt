@@ -18,17 +18,10 @@ class MainViewModel: ViewModel() {
     val currentTimerTime = TimerObj.time
     val isTimerRunning = TimerObj.isRunning
 
-    fun onStartStopwatch() {
-        if (currentStopwatchTime.value == 0L) {
-            _checkPoints.clear()
-        }
-
-        StopwatchObj.start()
-    }
-    fun onPauseStopwatch() { StopwatchObj.pause() }
-    fun onStopStopwatch() {
+    fun onSwitchStopwatch() { StopwatchObj.switch() }
+    fun onResetStopwatch() {
         _checkPoints.clear()
-        StopwatchObj.stop()
+        StopwatchObj.reset()
     }
 
     fun onSetTimerTime(time: Long) { TimerObj.setTime(time) }

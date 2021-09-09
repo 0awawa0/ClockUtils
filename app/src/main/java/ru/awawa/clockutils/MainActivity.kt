@@ -90,11 +90,9 @@ class MainActivity : ComponentActivity() {
                                             currentTime = currentStopwatchTime,
                                             isRunning = isStopwatchRunning,
                                             viewModel.checkPoints.value,
-                                            onStartStopwatch = viewModel::onStartStopwatch,
-                                            onPauseStopwatch = viewModel::onPauseStopwatch,
-                                            onStopStopwatch = viewModel::onStopStopwatch,
-                                            onAddCheckPoint = viewModel::onAddCheckPoint,
-                                            onSaveCheckPoint = {}
+                                            onSwitchStopwatch = viewModel::onSwitchStopwatch,
+                                            onResetStopwatch = viewModel::onResetStopwatch,
+                                            onAddCheckPoint = viewModel::onAddCheckPoint
                                         )
                                     }
                                 }

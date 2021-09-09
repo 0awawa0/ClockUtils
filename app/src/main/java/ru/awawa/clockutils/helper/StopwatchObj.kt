@@ -16,21 +16,21 @@ object StopwatchObj {
     private var mIsRunning = MutableStateFlow(false)
     val isRunning: StateFlow<Boolean> = mIsRunning
 
-    fun start() {
-        timer = timer(initialDelay = updateInterval, period = updateInterval) {
-            mTime.value = mTime.value + updateInterval
+    fun switch() {
+        if (mIsRunning.value) {
+            timer?.cancel()
+            timer?.purge()
+            timer = null
+            mIsRunning.value = false
+        } else {
+            timer = timer(initialDelay = updateInterval, period = updateInterval) {
+                mTime.value = mTime.value + updateInterval
+            }
+            mIsRunning.value = true
         }
-        mIsRunning.value = true
     }
 
-    fun pause() {
-        timer?.cancel()
-        timer?.purge()
-        timer = null
-        mIsRunning.value = false
-    }
-
-    fun stop() {
+    fun reset() {
         timer?.cancel()
         timer?.purge()
         timer = null
