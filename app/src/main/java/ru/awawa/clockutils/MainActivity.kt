@@ -1,30 +1,22 @@
 package ru.awawa.clockutils
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.core.content.ContextCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import ru.awawa.clockutils.service.StopwatchService
-import ru.awawa.clockutils.service.TimerService
 import ru.awawa.clockutils.ui.theme.ClockUtilsTheme
 import ru.awawa.clockutils.ui.theme.Grey700
-import ru.awawa.clockutils.ui.views.BottomBar
-import ru.awawa.clockutils.ui.views.NavigationItem
-import ru.awawa.clockutils.ui.views.StopwatchView
+import ru.awawa.clockutils.ui.views.*
 
 
 class MainActivity : ComponentActivity() {
@@ -39,12 +31,11 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel by viewModels<MainViewModel>()
     private var selectedItem by mutableStateOf(0)
-    private val navigationItems = listOf(NavigationItem.Stopwatch)
+    private val navigationItems = listOf(NavigationItem.Stopwatch, NavigationItem.Timer)
     private val currentNavItem: NavigationItem
         get() = navigationItems[selectedItem]
 
-    @ExperimentalFoundationApi
-    @ExperimentalAnimationApi
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -66,13 +57,18 @@ class MainActivity : ComponentActivity() {
                         items = navigationItems,
                         currentItem = currentNavItem,
                         onItemSelected = {
-                            selectedItem = it
-                            navController.navigate(currentNavItem.route)
+                            if (selectedItem != it) {
+                                selectedItem = it
+                                navController.navigate(currentNavItem.route)
+                            }
                         }
                     ) },
                     content = { paddings ->
                         val currentStopwatchTime: Long by viewModel.currentStopwatchTime.collectAsState()
                         val isStopwatchRunning: Boolean by viewModel.isStopwatchRunning.collectAsState()
+                        val currentTimerTime: Long by viewModel.currentTimerTime.collectAsState()
+                        val totalTimerTime: Long by viewModel.totalTimerTime.collectAsState()
+                        val isTimerRunning: Boolean by viewModel.isTimerRunning.collectAsState()
 
                         NavHost(
                             navController = navController,
@@ -94,6 +90,17 @@ class MainActivity : ComponentActivity() {
                                             onResetStopwatch = viewModel::onResetStopwatch,
                                             onAddCheckPoint = viewModel::onAddCheckPoint
                                         )
+
+                                        NavigationItem.Timer.route -> TimerView(
+                                            label = "",
+                                            currentTime = currentTimerTime,
+                                            totalTime = totalTimerTime,
+                                            isRunning = isTimerRunning,
+                                            onSetTime = viewModel::onSetTimerTime,
+                                            onStartTimer = { viewModel.onStartTimer(applicationContext) },
+                                            onPauseTimer = viewModel::onPauseTimer,
+                                            onStopTimer = viewModel::onStopTimer
+                                        )
                                     }
                                 }
                             }
@@ -106,29 +113,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onPause() {
         super.onPause()
-
-        if (viewModel.isStopwatchRunning.value) {
-            ContextCompat.startForegroundService(
-                this,
-                Intent(this, StopwatchService::class.java)
-            )
-        }
-
-        if (viewModel.isTimerRunning.value) {
-            ContextCompat.startForegroundService(
-                this,
-                Intent(this, TimerService::class.java)
-            )
-        }
-
-        Log.w(tag, "onPause()")
     }
 
     override fun onResume() {
         super.onResume()
-
-        stopService(Intent(this, StopwatchService::class.java))
-        stopService(Intent(this, TimerService::class.java))
         Log.w(tag, "onResume()")
     }
 }

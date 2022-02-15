@@ -3,8 +3,8 @@ package ru.awawa.clockutils
 import android.content.Context
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import ru.awawa.clockutils.helper.StopwatchObj
-import ru.awawa.clockutils.helper.TimerObj
+import ru.awawa.clockutils.util.StopwatchObj
+import ru.awawa.clockutils.util.TimerObj
 
 class MainViewModel: ViewModel() {
 
@@ -15,7 +15,9 @@ class MainViewModel: ViewModel() {
 
     private val _checkPoints = LinkedHashSet<CheckPoint>()
     val checkPoints = mutableStateOf(_checkPoints)
+
     val currentTimerTime = TimerObj.time
+    val totalTimerTime = TimerObj.totalTime
     val isTimerRunning = TimerObj.isRunning
 
     fun onSwitchStopwatch() { StopwatchObj.switch() }

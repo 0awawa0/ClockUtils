@@ -92,7 +92,7 @@ fun TimeArcView(
             )
         }
         Text(
-            text = "$hours:$minutes:$seconds:$milliseconds",
+            text = "$hours:$minutes:$seconds.$milliseconds",
             modifier = Modifier.align(Alignment.Center),
             fontSize = ((radius - 10.dp) / 8).value.sp,
             fontFamily = FontFamily.Monospace,

@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Stop
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -20,12 +21,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import ru.awawa.clockutils.ui.theme.ClockUtilsTheme
+import ru.awawa.clockutils.ui.theme.Teal300
 
 @Composable
 fun TimerView(
     modifier: Modifier = Modifier,
     label: String,
     currentTime: Long,
+    totalTime: Long,
     isRunning: Boolean,
     onSetTime: (Long) -> Unit,
     onStartTimer: () -> Unit,
@@ -33,7 +36,7 @@ fun TimerView(
     onStopTimer: () -> Unit
 ) {
 
-    ConstraintLayout(modifier = modifier) {
+    ConstraintLayout(modifier = modifier.fillMaxSize()) {
 
         val (btnStart, btnStop, text, header) = createRefs()
 
@@ -59,8 +62,8 @@ fun TimerView(
             onValueChange = onSetTime,
             textStyle = TextStyle(
                 textAlign = TextAlign.Center,
-                fontSize = 38.sp,
-                color = MaterialTheme.colors.onPrimary
+                fontSize = 50.sp,
+                color = Color.White
             )
         )
 
@@ -73,12 +76,13 @@ fun TimerView(
                         end.linkTo(btnStop.start, margin = 8.dp)
                         bottom.linkTo(parent.bottom, margin = 32.dp)
                     }
-                    .size(50.dp)
+                    .size(60.dp)
                     .clip(CircleShape)
             ) {
                 Icon(
                     imageVector = if (isRunning) Icons.Default.Pause else Icons.Default.PlayArrow,
-                    contentDescription = null
+                    contentDescription = null,
+                    tint = Teal300
                 )
             }
         }
@@ -97,12 +101,13 @@ fun TimerView(
                     end.linkTo(parent.end, margin = 8.dp)
                     bottom.linkTo(parent.bottom, margin = 32.dp)
                 }
-                .size(50.dp)
+                .size(60.dp)
                 .clip(CircleShape)
         ) {
             Icon(
                 imageVector = Icons.Default.Stop,
-                contentDescription = null
+                contentDescription = null,
+                tint = Teal300
             )
         }
     }
@@ -114,7 +119,8 @@ fun PreviewTimerView() {
     ClockUtilsTheme {
         TimerView(
             label = "Timer",
-            currentTime = 0L,
+            currentTime = 1L,
+            totalTime = 1L,
             isRunning = false,
             onSetTime = {},
             onStartTimer = {},

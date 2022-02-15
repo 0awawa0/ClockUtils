@@ -1,4 +1,4 @@
-package ru.awawa.clockutils.helper
+package ru.awawa.clockutils.util
 
 import android.content.Context
 import android.media.MediaPlayer
@@ -15,13 +15,21 @@ object TimerObj {
     private var timer: Timer? = null
 
     private var player: MediaPlayer? = null
+
+    private val mTotalTime = MutableStateFlow(0L)
+    val totalTime: StateFlow<Long> = mTotalTime
+
     private val mTime = MutableStateFlow(0L)
     val time: StateFlow<Long> = mTime
 
     private var mIsRunning = MutableStateFlow(false)
     val isRunning: StateFlow<Boolean> = mIsRunning
 
-    fun setTime(time: Long) { mTime.value = time }
+    fun setTime(time: Long) {
+        if (isRunning.value) return
+        mTotalTime.value = time
+        mTime.value = time
+    }
 
     fun start(context: Context) {
         if (mTime.value == 0L) return

@@ -27,8 +27,8 @@ import androidx.compose.ui.unit.sp
 import ru.awawa.clockutils.MainViewModel
 import ru.awawa.clockutils.ui.theme.*
 
-@ExperimentalFoundationApi
-@ExperimentalAnimationApi
+
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun StopwatchView(
     modifier: Modifier = Modifier,
@@ -136,18 +136,6 @@ fun StopwatchView(
 
         Spacer(modifier = Modifier.weight(spacerWeight))
     }
-}
-
-@ExperimentalAnimationApi
-@Composable
-fun StopwatchButtons(
-    modifier: Modifier = Modifier,
-    isRunning: Boolean = false,
-    onResetStopwatch: () -> Unit,
-    onAddCheckPoint: () -> Unit
-) {
-
-
 }
 
 @Composable

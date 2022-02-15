@@ -1,4 +1,4 @@
-package ru.awawa.clockutils.helper
+package ru.awawa.clockutils.util
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

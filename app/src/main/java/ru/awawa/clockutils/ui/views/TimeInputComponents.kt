@@ -1,18 +1,20 @@
 package ru.awawa.clockutils.ui.views
 
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
@@ -79,65 +81,128 @@ fun NumberInputView(
 fun TimeInputView(
     modifier: Modifier = Modifier,
     currentTime: Long = 0L,
+    totalTime: Long = 0L,
     isEnabled: Boolean = true,
     onValueChange: (Long) -> Unit = {},
+    useSeconds: Boolean = true,
+    primaryColor: Color = Color.White,
+    secondaryColor: Color = Color.Black,
+    pointerColor: Color = Color.Red,
+    primaryStrokeWidth: Float = 5f,
+    secondaryStrokeWidth: Float = 3f,
     textStyle: TextStyle = TextStyle(
-        textAlign = TextAlign.Center,
-        fontSize = 20.sp,
-        color = MaterialTheme.colors.onPrimary
-    ),
-    useSeconds: Boolean = true
+        color = Color.White,
+        textAlign = TextAlign.Center
+    )
 ) {
     val seconds = currentTime / 1000 % 60
     val minutes = currentTime / 1000 / 60 % 60
     val hours = currentTime / 1000 / 60/ 60 % 24
 
-    Row(
-        modifier = modifier
-    ) {
-        NumberInputView(
-            currentValue = hours.toInt(),
-            numbersCount = 2,
-            maxValue = 24,
-            isEnabled = isEnabled,
-            onValueChange = {
-                onValueChange(it * 1000 * 60 * 60 + minutes * 1000 * 60 + seconds * 1000)
-            },
-            textStyle = textStyle
-        )
-        Text(
-            text = ":",
-            fontSize = textStyle.fontSize,
-            color = textStyle.color,
-            textAlign = textStyle.textAlign
-        )
-        NumberInputView(
-            currentValue = minutes.toInt(),
-            numbersCount = 2,
-            maxValue = 60,
-            isEnabled = isEnabled,
-            onValueChange = {
-                onValueChange(hours * 1000 * 60 * 60 + it * 1000 * 60 + seconds * 1000)
-            },
-            textStyle = textStyle
-        )
-        if (useSeconds) {
+    val filled = if (totalTime != 0L) currentTime / totalTime.toFloat() else 1f
+
+    BoxWithConstraints(modifier = modifier) {
+        val radius = minOf(maxHeight, maxWidth)
+        Canvas(modifier = Modifier
+            .width(radius)
+            .height(radius)
+            .align(Alignment.Center)
+        ) {
+            val innerRadius = (size.minDimension - primaryStrokeWidth) / 2
+            val halfSize = size / 2f
+            val topLeft = Offset(
+                halfSize.width - innerRadius,
+                halfSize.height - innerRadius
+            )
+
+            val size = Size(innerRadius * 2, innerRadius * 2)
+            val pointerWidth = 1f
+            val primaryStartAngle = -90f
+            val primarySweepAngle = 360f * filled
+            val secondaryStartAngle = primaryStartAngle + primarySweepAngle + pointerWidth
+            val secondarySweepAngle = 360f - primarySweepAngle - pointerWidth
+
+            drawArc(
+                color = primaryColor,
+                startAngle = primaryStartAngle,
+                sweepAngle = primarySweepAngle,
+                useCenter = false,
+                style = Stroke(width = primaryStrokeWidth),
+                size = size,
+                topLeft = topLeft
+            )
+
+            drawArc(
+                color = pointerColor,
+                startAngle = secondaryStartAngle - pointerWidth,
+                sweepAngle = pointerWidth,
+                useCenter = false,
+                style = Stroke(width = primaryStrokeWidth),
+                size = size,
+                topLeft = topLeft
+            )
+            drawArc(
+                color = secondaryColor,
+                startAngle =  secondaryStartAngle,
+                sweepAngle = secondarySweepAngle,
+                useCenter = false,
+                style = Stroke(width = secondaryStrokeWidth),
+                size = size,
+                topLeft = topLeft
+            )
+
+
+        }
+
+        val fontSize = ((radius - 10.dp) / 7).value.sp
+
+        Row(
+            modifier = modifier.align(Alignment.Center)
+        ) {
+            NumberInputView(
+                currentValue = hours.toInt(),
+                numbersCount = 2,
+                maxValue = 24,
+                isEnabled = isEnabled,
+                onValueChange = {
+                    onValueChange(it * 1000 * 60 * 60 + minutes * 1000 * 60 + seconds * 1000)
+                },
+                textStyle = textStyle.copy(fontSize = fontSize)
+            )
             Text(
                 text = ":",
-                fontSize = textStyle.fontSize,
+                fontSize = fontSize,
                 color = textStyle.color,
                 textAlign = textStyle.textAlign
             )
             NumberInputView(
-                currentValue = seconds.toInt(),
+                currentValue = minutes.toInt(),
                 numbersCount = 2,
                 maxValue = 60,
                 isEnabled = isEnabled,
                 onValueChange = {
-                    onValueChange(hours * 1000 * 60 * 60 + minutes * 1000 * 60 + it * 1000)
+                    onValueChange(hours * 1000 * 60 * 60 + it * 1000 * 60 + seconds * 1000)
                 },
-                textStyle = textStyle
+                textStyle = textStyle.copy(fontSize = fontSize)
             )
+            if (useSeconds) {
+                Text(
+                    text = ":",
+                    fontSize = fontSize,
+                    color = textStyle.color,
+                    textAlign = textStyle.textAlign
+                )
+                NumberInputView(
+                    currentValue = seconds.toInt(),
+                    numbersCount = 2,
+                    maxValue = 60,
+                    isEnabled = isEnabled,
+                    onValueChange = {
+                        onValueChange(hours * 1000 * 60 * 60 + minutes * 1000 * 60 + it * 1000)
+                    },
+                    textStyle = textStyle.copy(fontSize = fontSize)
+                )
+            }
         }
     }
 }
@@ -156,6 +221,7 @@ fun PreviewNumberInput() {
 @Composable
 fun PreviewTimeInput() {
     TimeInputView(
-        currentTime = 5 * 60000
+        currentTime = 3 * 60000,
+        totalTime = 5 * 60000
     )
 }
