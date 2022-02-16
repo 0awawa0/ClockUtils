@@ -4,6 +4,7 @@
     <string name="timer">Timer</string>
     <string name="stopwatch">Stopwatch</string>
     <string name = "alarm">Alarm</string>
+    <string name = "metronome">Metronome</string>
 
     <string name="start">Start</string>
     <string name="pause">Pause</string>

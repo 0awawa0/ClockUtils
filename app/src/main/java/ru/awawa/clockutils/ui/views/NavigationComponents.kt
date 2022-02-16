@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import ru.awawa.clockutils.R
@@ -17,10 +18,11 @@ import ru.awawa.clockutils.ui.theme.Teal300
 import ru.awawa.clockutils.ui.theme.Teal400
 
 
-enum class NavigationItem(val route: String, val icon: ImageVector, val label: Int) {
+enum class NavigationItem(val route: String, val icon: Any, val label: Int) {
     Stopwatch("stopwatch", Icons.Default.Timer, R.string.stopwatch),
     Timer("timer", Icons.Default.AvTimer, R.string.timer),
-    Alarm("alarm", Icons.Default.Alarm, R.string.alarm)
+    Alarm("alarm", Icons.Default.Alarm, R.string.alarm),
+    Metronome("metronome", R.drawable.ic_metronome, R.string.metronome)
 }
 
 @Composable
@@ -33,7 +35,16 @@ fun BottomBar(
     BottomNavigation(modifier = modifier) {
         items.forEachIndexed { index, navigationItem ->
             BottomNavigationItem(
-                icon = { Icon(navigationItem.icon, contentDescription = null) },
+                icon = {
+                    when (navigationItem.icon) {
+                        is ImageVector -> Icon(navigationItem.icon, contentDescription = null)
+                        is Int -> Icon(
+                            painterResource(id = navigationItem.icon),
+                            contentDescription = null,
+                            tint = Color.White
+                        )
+                    }
+                },
                 selected = navigationItem.route == currentItem.route,
                 onClick = { onItemSelected(index) },
                 selectedContentColor = Teal300,
@@ -50,7 +61,8 @@ fun PreviewBottomBar() {
     val items = listOf(
         NavigationItem.Stopwatch,
         NavigationItem.Timer,
-        NavigationItem.Alarm
+        NavigationItem.Alarm,
+        NavigationItem.Metronome
     )
     ClockUtilsTheme {
         BottomBar(
