@@ -87,7 +87,6 @@ fun TimeInputView(
     useSeconds: Boolean = true,
     primaryColor: Color = Color.White,
     secondaryColor: Color = Color.Black,
-    pointerColor: Color = Color.Red,
     primaryStrokeWidth: Float = 5f,
     secondaryStrokeWidth: Float = 3f,
     textStyle: TextStyle = TextStyle(
@@ -116,11 +115,10 @@ fun TimeInputView(
             )
 
             val size = Size(innerRadius * 2, innerRadius * 2)
-            val pointerWidth = 1f
             val primaryStartAngle = -90f
             val primarySweepAngle = 360f * filled
-            val secondaryStartAngle = primaryStartAngle + primarySweepAngle + pointerWidth
-            val secondarySweepAngle = 360f - primarySweepAngle - pointerWidth
+            val secondaryStartAngle = primaryStartAngle + primarySweepAngle
+            val secondarySweepAngle = 360f - primarySweepAngle
 
             drawArc(
                 color = primaryColor,
@@ -132,15 +130,6 @@ fun TimeInputView(
                 topLeft = topLeft
             )
 
-            drawArc(
-                color = pointerColor,
-                startAngle = secondaryStartAngle - pointerWidth,
-                sweepAngle = pointerWidth,
-                useCenter = false,
-                style = Stroke(width = primaryStrokeWidth),
-                size = size,
-                topLeft = topLeft
-            )
             drawArc(
                 color = secondaryColor,
                 startAngle =  secondaryStartAngle,
@@ -157,7 +146,7 @@ fun TimeInputView(
         val fontSize = ((radius - 10.dp) / 7).value.sp
 
         Row(
-            modifier = modifier.align(Alignment.Center)
+            modifier = Modifier.align(Alignment.Center)
         ) {
             NumberInputView(
                 currentValue = hours.toInt(),
@@ -221,7 +210,8 @@ fun PreviewNumberInput() {
 @Composable
 fun PreviewTimeInput() {
     TimeInputView(
-        currentTime = 3 * 60000,
-        totalTime = 5 * 60000
+        currentTime = 0,
+        totalTime = 0,
+
     )
 }

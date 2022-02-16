@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import ru.awawa.clockutils.ui.theme.ClockUtilsTheme
+import ru.awawa.clockutils.ui.theme.Grey700
 import ru.awawa.clockutils.ui.theme.Teal300
 
 @Composable
@@ -36,7 +37,7 @@ fun TimerView(
     onStopTimer: () -> Unit
 ) {
 
-    ConstraintLayout(modifier = modifier.fillMaxSize()) {
+    ConstraintLayout(modifier = modifier.fillMaxSize().padding(16.dp)) {
 
         val (btnStart, btnStop, text, header) = createRefs()
 
@@ -58,13 +59,18 @@ fun TimerView(
                 bottom.linkTo(btnStop.top, margin = 8.dp)
             },
             currentTime = currentTime,
+            totalTime = totalTime,
             isEnabled = !isRunning,
             onValueChange = onSetTime,
             textStyle = TextStyle(
                 textAlign = TextAlign.Center,
                 fontSize = 50.sp,
                 color = Color.White
-            )
+            ),
+            primaryColor = Teal300,
+            secondaryColor = Grey700,
+            primaryStrokeWidth = 10f,
+            secondaryStrokeWidth = 5f
         )
 
         if (!isRunning || currentTime != 0L) {

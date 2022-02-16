@@ -48,7 +48,7 @@ fun StopwatchView(
             RepeatMode.Reverse
         )
     )
-    Column(modifier = modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(modifier = modifier.fillMaxSize(), horizontalAlignment = CenterHorizontally) {
         val spacerWeight = 2f
         val buttonsWeight = 8f
         val boxWeight: Float = 100f - spacerWeight * 3 - buttonsWeight
@@ -84,7 +84,7 @@ fun StopwatchView(
                 secondaryColor = Grey700,
                 primaryStrokeWidth = 10f,
                 secondaryStrokeWidth = 5f,
-                pointerColor = Red400
+                pointerColor = Teal300
             )
 
             LazyColumn(modifier = Modifier

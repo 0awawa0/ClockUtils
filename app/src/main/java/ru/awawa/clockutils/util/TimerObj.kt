@@ -61,6 +61,7 @@ object TimerObj {
         timer?.purge()
         timer = null
         mTime.value = 0L
+        mTotalTime.value = 0L
         mIsRunning.value = false
         player?.stop()
         player?.release()
