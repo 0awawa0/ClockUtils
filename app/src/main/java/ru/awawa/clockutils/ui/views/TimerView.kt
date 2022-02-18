@@ -123,7 +123,7 @@ fun TimerView(
 fun PreviewTimerView() {
     ClockUtilsTheme {
         TimerView(
-            label = "Timer",
+            label = "",
             currentTime = 1L,
             totalTime = 1L,
             isRunning = false,

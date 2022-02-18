@@ -1,5 +1,7 @@
 package ru.awawa.clockutils.ui.views
 
+import android.graphics.Paint
+import android.graphics.Rect
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
@@ -8,41 +10,99 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.center
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
-
+import androidx.compose.ui.unit.center
+import kotlin.math.abs
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
 
 @Composable
 fun RoundRangePickView(
     modifier: Modifier = Modifier,
-    skipAngle: Float = 45f
+    skipAngle: Float = 45f,
+    minValue: Float = 0f,
+    maxValue: Float = 1f,
+    currentValue: Float = 0f,
+    textFormatter: (Float) -> String = { "" },
+    onValueChanged: (Float) -> Unit = {}
 ) {
+    val startAngle = 90 + skipAngle / 2f
+    val sweepAngle = 360 - skipAngle
+    val selectorRadius = 50f
+    val touchSlop = 100f
+    val normalizedValue = (currentValue.coerceIn(minValue, maxValue) - minValue) / (maxValue - minValue)
+    val selectorDegrees = 180.0f - skipAngle / 2 - sweepAngle * normalizedValue
+
+    println(selectorDegrees)
+    var selectorAngle by remember { mutableStateOf(if (selectorDegrees < 0) selectorDegrees + 280f else selectorDegrees) }
+    var dragStartedAngle by remember { mutableStateOf(selectorDegrees) }
+    var previousAngle by remember { mutableStateOf(selectorAngle) }
+    var value by remember { mutableStateOf(normalizedValue) }
+    var selectorXOffset by remember { mutableStateOf(0.0) }
+    var selectorYOffset by remember { mutableStateOf(0.0) }
+    var isDraggingSelector by remember { mutableStateOf(false) }
+
     BoxWithConstraints(modifier = modifier) {
         val radius = minOf(maxHeight, maxWidth)
         val strokeWidth = 5f
         Canvas(
             modifier = Modifier
-                .width(radius)
-                .height(radius)
+                .size(radius)
                 .align(Alignment.Center)
+                .pointerInput(true) {
+                    detectDragGestures(
+                        onDragStart = { offset ->
+                            isDraggingSelector = selectorXOffset - touchSlop < offset.x
+                                && offset.x < selectorXOffset + touchSlop
+                                && selectorYOffset - touchSlop < offset.y
+                                && offset.y < selectorYOffset + touchSlop
+
+                            dragStartedAngle = atan2(
+                                y = size.center.x - offset.x,
+                                x = size.center.y - offset.y
+                            ) * (180 / Math.PI.toFloat()) * -1
+                        },
+
+                        onDragEnd = {
+                            previousAngle = selectorAngle
+                        }
+                    ) { change, _ ->
+                        if (!isDraggingSelector) return@detectDragGestures
+
+                        change.consumeAllChanges()
+                        val touchAngle = atan2(
+                            y = size.center.x - change.position.x,
+                            x = size.center.y - change.position.y
+                        ) * (180 / Math.PI.toFloat()) * -1
+
+
+                        val old = selectorAngle
+                        val x = previousAngle + touchAngle - dragStartedAngle
+                        if (abs(old - x) < 180f) selectorAngle = x.coerceIn(0f, 360f)
+
+
+                        val newValue = selectorAngle / 360f
+                        value = newValue
+                        onValueChanged(newValue * (maxValue - minValue) + minValue)
+                        println("$old $x $selectorAngle $previousAngle $touchAngle $dragStartedAngle $currentValue")
+                    }
+                }
 
         ) {
             val innerRadius = (size.minDimension - strokeWidth) / 2
             val halfSize = size / 2f
             val size = Size(innerRadius * 2, innerRadius * 2)
             val topLeft = Offset(halfSize.width - innerRadius, halfSize.height - innerRadius)
-            val startAngle = 90 + skipAngle / 2f
-            val sweepAngle = 360 - skipAngle
-            val selectorRadius = 50f
-            val selectorXOffset = innerRadius - innerRadius * Math.sin(
-                Math.toRadians(startAngle.toDouble() + skipAngle.toDouble())
-            )
-            val selectorYOffset = innerRadius - innerRadius * Math.cos(
-                Math.toRadians(startAngle.toDouble() + skipAngle.toDouble())
-            )
+
+            selectorYOffset = innerRadius - innerRadius * cos(Math.toRadians(selectorDegrees.toDouble()))
+            selectorXOffset = innerRadius - innerRadius * sin(Math.toRadians(selectorDegrees.toDouble()))
             drawArc(
                 color = Color.White,
                 startAngle = startAngle,
@@ -58,6 +118,28 @@ fun RoundRangePickView(
                 radius = selectorRadius,
                 center = Offset(selectorXOffset.toFloat(), selectorYOffset.toFloat())
             )
+
+            val valueText = textFormatter(value)
+            if (valueText.isNotBlank()) {
+                drawContext.canvas.nativeCanvas.apply {
+
+                    val valuePaint = Paint()
+                    valuePaint.color = android.graphics.Color.parseColor("#000000")
+                    valuePaint.textSize = (innerRadius / 2)
+                    val valueTextRect = Rect()
+                    valuePaint.getTextBounds(valueText, 0, valueText.length, valueTextRect)
+
+                    val valueTextPositionX = size.center.x - (valueTextRect.width() / 2)
+                    val valueTextPositionY = size.center.y - (valueTextRect.height() / 2)
+
+                    drawText(
+                        valueText,
+                        valueTextPositionX,
+                        valueTextPositionY,
+                        valuePaint
+                    )
+                }
+            }
         }
     }
 }
@@ -80,6 +162,46 @@ fun MetronomeView(
 
 @Preview
 @Composable
-fun PreviewRoundRangePickView() {
-    RoundRangePickView()
+fun PreviewRoundRangePickView0() {
+    var percentage by remember { mutableStateOf(0f) }
+    RoundRangePickView(
+        currentValue = percentage,
+        onValueChanged = { percentage = it },
+        textFormatter = { String.format("%02.02f", it * 100) }
+    )
+}
+
+@Preview
+@Composable
+fun PreviewRoundRangePickView25() {
+    RoundRangePickView(
+        currentValue = 0.25f,
+        textFormatter = { String.format("%02d", (it * 100).toInt()) }
+    )
+}
+
+@Preview
+@Composable
+fun PreviewRoundRangePickView50() {
+    var percentage by remember { mutableStateOf(0f) }
+    RoundRangePickView(
+        currentValue = 0.5f,
+        onValueChanged =  { percentage = it }
+    )
+}
+
+@Preview
+@Composable
+fun PreviewRoundRangePickView75() {
+    RoundRangePickView(
+        currentValue = 0.75f
+    )
+}
+
+@Preview
+@Composable
+fun PreviewRoundRangePickView100() {
+    RoundRangePickView(
+        currentValue = 1f
+    )
 }

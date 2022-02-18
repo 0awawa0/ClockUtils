@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -31,7 +32,7 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel by viewModels<MainViewModel>()
     private var selectedItem by mutableStateOf(0)
-    private val navigationItems = listOf(NavigationItem.Stopwatch, NavigationItem.Timer)
+    private val navigationItems = listOf(NavigationItem.Stopwatch, NavigationItem.Timer, NavigationItem.Metronome)
     private val currentNavItem: NavigationItem
         get() = navigationItems[selectedItem]
 
@@ -69,6 +70,7 @@ class MainActivity : ComponentActivity() {
                         val currentTimerTime: Long by viewModel.currentTimerTime.collectAsState()
                         val totalTimerTime: Long by viewModel.totalTimerTime.collectAsState()
                         val isTimerRunning: Boolean by viewModel.isTimerRunning.collectAsState()
+                        var bitsPerMinute: Int by remember { mutableStateOf(60) }
 
                         NavHost(
                             navController = navController,
@@ -100,6 +102,16 @@ class MainActivity : ComponentActivity() {
                                             onStartTimer = { viewModel.onStartTimer(applicationContext) },
                                             onPauseTimer = viewModel::onPauseTimer,
                                             onStopTimer = viewModel::onStopTimer
+                                        )
+
+                                        NavigationItem.Metronome.route -> RoundRangePickView(
+                                            modifier = childModifier.padding(16.dp),
+                                            skipAngle = 45f,
+                                            minValue = 10f,
+                                            maxValue = 300f,
+                                            currentValue = bitsPerMinute.toFloat(),
+                                            onValueChanged = { bitsPerMinute = it.toInt() },
+                                            textFormatter = { String.format("%02d", (290 * it + 10).toInt()) }
                                         )
                                     }
                                 }
