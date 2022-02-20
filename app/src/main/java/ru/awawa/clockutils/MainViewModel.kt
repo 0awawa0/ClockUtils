@@ -23,8 +23,8 @@ class MainViewModel: ViewModel() {
     val totalTimerTime = TimerObj.totalTime
     val isTimerRunning = TimerObj.isRunning
 
-    private var _ticksPerSecond = MutableStateFlow(0f)
-    val ticksPerSecond: StateFlow<Float> = _ticksPerSecond
+    private var _bitsPerMinute = MutableStateFlow(60f)
+    val bitsPerMinute: StateFlow<Float> = _bitsPerMinute
 
     fun onSwitchStopwatch() { StopwatchObj.switch() }
     fun onResetStopwatch() {
@@ -43,7 +43,7 @@ class MainViewModel: ViewModel() {
         _checkPoints.add(CheckPoint(time, if (last == -1L) -1L else time - last))
     }
 
-    fun onNewTicksPerSecondValue(value: Float) {
-        _ticksPerSecond.value = value
+    fun onBpmChanged(value: Float) {
+        _bitsPerMinute.value = value
     }
 }

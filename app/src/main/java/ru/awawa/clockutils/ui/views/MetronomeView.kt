@@ -5,6 +5,8 @@ import android.graphics.Rect
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.Button
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,22 +31,24 @@ fun RoundRangePickView(
     skipAngle: Float = 45f,
     minValue: Float = 0f,
     maxValue: Float = 1f,
-    currentValue: Float = 0f,
+    startValue: Float = 0f,
     textFormatter: (Float) -> String = { "" },
-    onValueChanged: (Float) -> Unit = {}
+    onValueChanged: (Float) -> Unit = {},
+    onButtonClick: () -> Unit = {}
 ) {
     val startAngle = 90 + skipAngle / 2f
     val sweepAngle = 360 - skipAngle
     val selectorRadius = 50f
     val touchSlop = 100f
-    val normalizedValue = (currentValue.coerceIn(minValue, maxValue) - minValue) / (maxValue - minValue)
-    val selectorDegrees = 180.0f - skipAngle / 2 - sweepAngle * normalizedValue
+    val startValueNormalized = (startValue.coerceIn(minValue, maxValue) - minValue) / (maxValue - minValue)
+    var value by remember { mutableStateOf(startValueNormalized) }
 
-    println(selectorDegrees)
-    var selectorAngle by remember { mutableStateOf(if (selectorDegrees < 0) selectorDegrees + 280f else selectorDegrees) }
+    val selectorDegrees = 180.0f - skipAngle / 2 - sweepAngle * value
+    
     var dragStartedAngle by remember { mutableStateOf(selectorDegrees) }
+    var selectorAngle by remember { mutableStateOf((360 - skipAngle) / 2 - selectorDegrees) }
     var previousAngle by remember { mutableStateOf(selectorAngle) }
-    var value by remember { mutableStateOf(normalizedValue) }
+
     var selectorXOffset by remember { mutableStateOf(0.0) }
     var selectorYOffset by remember { mutableStateOf(0.0) }
     var isDraggingSelector by remember { mutableStateOf(false) }
@@ -85,13 +89,11 @@ fun RoundRangePickView(
 
                         val old = selectorAngle
                         val x = previousAngle + touchAngle - dragStartedAngle
-                        if (abs(old - x) < 180f) selectorAngle = x.coerceIn(0f, 360f)
+                        if (abs(old - x) < 180f) selectorAngle = x.coerceIn(0f, 360f - skipAngle)
 
-
-                        val newValue = selectorAngle / 360f
+                        val newValue = selectorAngle / (360f - skipAngle)
                         value = newValue
                         onValueChanged(newValue * (maxValue - minValue) + minValue)
-                        println("$old $x $selectorAngle $previousAngle $touchAngle $dragStartedAngle $currentValue")
                     }
                 }
 
@@ -141,6 +143,10 @@ fun RoundRangePickView(
                 }
             }
         }
+        
+        Button(onClick = onButtonClick) {
+            Text(text = "Click")
+        }
     }
 }
 
@@ -165,7 +171,7 @@ fun MetronomeView(
 fun PreviewRoundRangePickView0() {
     var percentage by remember { mutableStateOf(0f) }
     RoundRangePickView(
-        currentValue = percentage,
+        startValue = percentage,
         onValueChanged = { percentage = it },
         textFormatter = { String.format("%02.02f", it * 100) }
     )
@@ -175,7 +181,7 @@ fun PreviewRoundRangePickView0() {
 @Composable
 fun PreviewRoundRangePickView25() {
     RoundRangePickView(
-        currentValue = 0.25f,
+        startValue = 0.25f,
         textFormatter = { String.format("%02d", (it * 100).toInt()) }
     )
 }
@@ -185,7 +191,7 @@ fun PreviewRoundRangePickView25() {
 fun PreviewRoundRangePickView50() {
     var percentage by remember { mutableStateOf(0f) }
     RoundRangePickView(
-        currentValue = 0.5f,
+        startValue = 0.5f,
         onValueChanged =  { percentage = it }
     )
 }
@@ -194,7 +200,7 @@ fun PreviewRoundRangePickView50() {
 @Composable
 fun PreviewRoundRangePickView75() {
     RoundRangePickView(
-        currentValue = 0.75f
+        startValue = 0.75f
     )
 }
 
@@ -202,6 +208,6 @@ fun PreviewRoundRangePickView75() {
 @Composable
 fun PreviewRoundRangePickView100() {
     RoundRangePickView(
-        currentValue = 1f
+        startValue = 1f
     )
 }

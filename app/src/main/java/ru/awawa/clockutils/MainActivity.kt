@@ -70,7 +70,7 @@ class MainActivity : ComponentActivity() {
                         val currentTimerTime: Long by viewModel.currentTimerTime.collectAsState()
                         val totalTimerTime: Long by viewModel.totalTimerTime.collectAsState()
                         val isTimerRunning: Boolean by viewModel.isTimerRunning.collectAsState()
-                        var bitsPerMinute: Int by remember { mutableStateOf(60) }
+                        val bitsPerMinute: Float by viewModel.bitsPerMinute.collectAsState()
 
                         NavHost(
                             navController = navController,
@@ -109,9 +109,10 @@ class MainActivity : ComponentActivity() {
                                             skipAngle = 45f,
                                             minValue = 10f,
                                             maxValue = 300f,
-                                            currentValue = bitsPerMinute.toFloat(),
-                                            onValueChanged = { bitsPerMinute = it.toInt() },
-                                            textFormatter = { String.format("%02d", (290 * it + 10).toInt()) }
+                                            startValue = 60f,
+                                            onValueChanged = {  viewModel.onBpmChanged(bitsPerMinute) },
+                                            textFormatter = { String.format("%02d", (290 * it + 10).toInt()) },
+                                            onButtonClick = { viewModel.onBpmChanged(bitsPerMinute - 2) }
                                         )
                                     }
                                 }
