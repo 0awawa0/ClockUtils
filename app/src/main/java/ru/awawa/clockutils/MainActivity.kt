@@ -112,7 +112,7 @@ class MainActivity : ComponentActivity() {
                                             startValue = 60f,
                                             onValueChanged = {  viewModel.onBpmChanged(bitsPerMinute) },
                                             textFormatter = { String.format("%02d", (290 * it + 10).toInt()) },
-                                            onButtonClick = { viewModel.onBpmChanged(bitsPerMinute - 2) }
+                                            subtextFormatter = { "BPM" }
                                         )
                                     }
                                 }
